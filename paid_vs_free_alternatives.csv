@@ -1,0 +1,7 @@
+paid_model,paid_score,paid_cost,free_model,free_score,free_cost,savings_pct,score_gap,trade_off,best_for
+GPT-4o,89.7,0.005,Llama 3 70B,81.2,0.00065,97,8.5,Lower creative writing quality. Smaller context window (8K vs 128K).,"General Q&A, coding, data analysis where budget matters."
+GPT-4 Turbo,86.7,0.01,Llama 3 70B,81.2,0.00065,94,5.5,Slightly lower accuracy on complex reasoning. No vision support.,"Batch processing, internal tools, prototyping."
+Claude 3.5 Sonnet,90.8,0.003,Mistral Large,83.3,0.002,47,7.5,Lower coding accuracy (92 vs 82 HumanEval). Smaller context window.,"Document analysis, multilingual tasks, self-hosted apps."
+Claude 3 Opus,87.3,0.015,Llama 3 70B,81.2,0.00065,96,6.1,Lower benchmark scores across the board. No vision.,"High volume text generation, data extraction."
+Gemini 1.5 Pro,85.0,0.0035,Mistral Large,83.3,0.002,33,1.7,Loses 1M token context window (drops to 32K). Lower multilingual scores.,"Standard document processing, RAG pipelines."
+Gemini 1.5 Flash,77.9,0.00035,Llama 3 8B,62.3,6e-05,83,15.6,Lower accuracy on math and coding. Smaller context.,"Simple chatbots, content classification, high speed needs."

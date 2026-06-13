@@ -76,13 +76,36 @@ Done.
 | GSM8K | Grade school math problem solving | 25% |
 | TruthfulQA | Factuality and truthfulness | 20% |
 
+## Paid vs Free Alternatives
+
+Every paid model includes a recommended free / open source alternative. The engine maps each paid model to the closest free option based on capability similarity.
+
+### Mapping
+
+| Paid Model | Free Alternative | Saving | Score Gap | When to Use Free |
+|------------|-----------------|--------|-----------|------------------|
+| GPT-4o | Llama 3 70B | 97% | -8.5 | General Q&A, coding, data analysis on a budget |
+| GPT-4 Turbo | Llama 3 70B | 94% | -5.5 | Batch processing, internal tools, prototyping |
+| Claude 3.5 Sonnet | Mistral Large | 47% | -7.5 | Document analysis, self-hosted, multilingual |
+| Claude 3 Opus | Llama 3 70B | 96% | -6.1 | High volume text generation, data extraction |
+| Gemini 1.5 Pro | Mistral Large | 33% | -1.7 | Standard document processing, RAG pipelines |
+| Gemini 1.5 Flash | Llama 3 8B | 83% | -15.6 | Simple chatbots, classification, high speed |
+
+### Decision Framework
+
+- **Need maximum accuracy?** Use the paid model. The score gap matters for complex tasks.
+- **Building an internal tool?** Use the free alternative. Save 33-97% on API costs.
+- **Handling sensitive data?** Free = open source = self hosted. Data never leaves your servers.
+- **Processing high volume?** Free models cost pennies. Run millions of queries without breaking the bank.
+
 ## How It Works
 
 1. Model data is defined as a DataFrame with benchmark scores, cost, speed, and context window.
 2. A composite benchmark score is calculated using weighted averages.
 3. Models are grouped into performance tiers based on composite scores.
-4. Use case recommendations are generated based on model strengths.
-5. Four visualizations compare models across dimensions.
+4. Each paid model is mapped to a free alternative with trade-off analysis.
+5. Use case recommendations are generated based on model strengths.
+6. Five visualizations compare models across dimensions, including paid vs free.
 
 ## Results Summary
 
