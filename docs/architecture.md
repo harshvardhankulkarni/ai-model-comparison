@@ -1,99 +1,78 @@
-# Architecture: AI Model Comparison
+<!-- GSD -->
 
-## Context
+# AI Model Comparison — Architecture
 
-The AI model landscape changes rapidly. Developers and businesses need a structured way to compare models across benchmarks, cost, and capabilities to make informed decisions.
+## Context and Goals
 
-## Goals
+Compares 10 AI models across benchmarks, cost, speed, and context window. Features an interactive CLI recommender and paid-vs-free alternative mapping. Portfolio demo showcasing data analysis with structured comparison data.
 
-- Compare 10 major LLMs across 4 standardized benchmarks.
-- Rank models by a weighted composite score.
-- Categorize models into performance tiers.
-- Generate use case recommendations for each model.
-- Visualize comparisons across multiple dimensions.
-
-## Design
-
-### Data Flow
+## Data Flow
 
 ```
-Model DataFrame (10 rows x 14 columns)
-  - Identity: model name, provider, release date
-  - Benchmarks: MMLU, HumanEval, GSM8K, TruthfulQA
-  - Performance: context window, speed
-  - Cost: input/output per 1K tokens
-  - Metadata: open source flag
-        |
-        v
-Score Calculation
-  - Weighted composite = MMLU*0.25 + HumanEval*0.30 + GSM8K*0.25 + TruthfulQA*0.20
-        |
-        +---> Tier Assignment (4 tiers by score)
-        +---> Use Case Recommendation (rule-based)
-        |
-        v
-Visualization (2x2 grid) + CSV Export
+Model Definitions (10 models with scores, costs, platforms)
+  → Interactive CLI (3 questions: task, budget, open-source preference)
+  → Multi-factor scoring engine
+  → Top 3 recommendations with paid/free alternatives
+  → Static 4-panel benchmark visualization
+  → Interactive Plotly HTML comparison chart
+  → CSV export (model data, paid-vs-free mapping)
 ```
 
-### Scoring Model
+## Components
 
-```python
-weights = {
-    'mmlu': 0.25,        # General knowledge
-    'human_eval': 0.30,  # Coding (highest weight)
-    'gsm8k': 0.25,       # Math reasoning
-    'truthful_qa': 0.20  # Factuality
-}
-```
+| File | Role |
+|------|------|
+| `ai_model_comparison.py` | Main script: model definitions, CLI interaction, scoring engine, recommendations, static chart |
+| `generate_interactive.py` | Generates interactive Plotly HTML comparison |
+| `ai_model_comparison.ipynb` | Jupyter notebook for exploratory analysis |
+| `model_comparison_data.csv` | Full model data with scores and costs |
+| `paid_vs_free_alternatives.csv` | Paid-to-free model mapping |
+| `ai_model_comparison.png` | Static 4-panel benchmark comparison |
+| `ai_model_comparison_interactive.html` | Interactive Plotly chart |
 
-Coding is weighted highest because it is the most common practical use case.
+## Model Scope
 
-### Recommendation Logic
+| Category | Models |
+|----------|--------|
+| Flagship LLMs | GPT-4o, GPT-4 Turbo, Claude 3.5 Sonnet, Claude 3 Opus |
+| Alternative LLMs | Gemini 1.5 Pro, Gemini 1.5 Flash, Llama 3 70B, Llama 3 8B, Mistral Large |
+| Image Generation | DALL-E 3, Stable Diffusion, Midjourney, FLUX.1 |
+| Compact | Claude 3 Haiku |
 
-```python
-if row['context_window'] >= 100000:
-    reasons.append('Long document analysis')
-if row['human_eval'] >= 85:
-    reasons.append('Complex coding tasks')
-if row['cost_input_1k'] <= 0.001:
-    reasons.append('High volume, cost sensitive')
-if row['open_source']:
-    reasons.append('Self hosted, data privacy')
-if row['benchmark_score'] >= 88:
-    reasons.append('General purpose, maximum accuracy')
-```
-
-### Visualization Layout
-
-```
-Panel 1: Grouped bar chart - All benchmarks by model (color by provider)
-Panel 2: Horizontal bar - Composite score ranking
-Panel 3: Scatter plot - Cost vs performance
-Panel 4: Bar chart - Context window comparison
-```
-
-## Key Decisions
+## Design Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| 4 benchmarks only | Covers knowledge, coding, math, and truthfulness. More benchmarks add noise. |
-| Weighted composite instead of average | Coding is the highest value use case for most users. |
-| Rule-based recommendations | Transparent and explainable. No black-box ML needed. |
-| Cost as a separate dimension | Critical for practical decision making. A perfect model is useless if it is too expensive. |
+| CLI-based interaction | Simple, scriptable, no web UI needed for demo |
+| 3-question input | Covers key decision factors without overwhelming users |
+| Paid vs free mapping | Practical cost-saving recommendations |
+| Static + interactive charts | Quick reference and detailed exploration |
+| Subjective capability scores | Benchmark scores aggregated for simplified comparison |
 
 ## Trade-offs
 
-- **Static data**: Benchmark scores change as models get updated. The data is a snapshot. A production system would pull from an API.
-- **4 benchmarks vs 50+**: MMLU alone has 57 subjects. Adding more benchmarks (HellaSwag, ARC, WinoGrande) would give a more complete picture but reduce readability.
-- **Cost vs quality**: The composite score does not include cost. We show cost separately. Some users care more about value (cost-adjusted score).
+- Model data becomes outdated as new versions release
+- Capability scores are subjective aggregations
+- Limited to 10 models — many alternatives not covered
+- No real-time pricing (cost data is static)
+- CLI only — no web or API interface for recommendations
 
-## Integration Points
+## File Organization
 
-- **Input**: Hardcoded DataFrame. Replace with API data from OpenRouter, Artificial Analysis, or Evalplus.
-- **Output**: `model_comparison_data.csv` for reports or dashboards.
-- **Extending**: Add more models by appending rows. Add more benchmarks by adding columns.
-
-## Dependencies
-
-- Python 3.8+
-- pandas, numpy, matplotlib
+```
+ai-model-comparison/
+├── ai_model_comparison.py
+├── generate_interactive.py
+├── ai_model_comparison.ipynb
+├── ai_model_comparison.png
+├── ai_model_comparison_interactive.html
+├── model_comparison_data.csv
+├── paid_vs_free_alternatives.csv
+├── index.html
+└── docs/
+    ├── ARCHITECTURE.md
+    ├── GETTING-STARTED.md
+    ├── DEVELOPMENT.md
+    ├── TESTING.md
+    └── CONFIGURATION.md
+```
