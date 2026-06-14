@@ -65,7 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <section class="hero">
 <div class="badge">Demo Project</div>
 <h1>AI Model Comparison</h1>
-<p>Compares 10 LLMs across 4 benchmarks (MMLU, HumanEval, GSM8K, TruthfulQA), cost, speed, and context window. Includes paid vs free alternative mapping.</p>
+<p>"What model should I use for coding?" — Run the interactive CLI recommender. Tells you your use case, budget, and privacy needs. Outputs the best model + free alternative + where to access it.</p>
 </section>
 
 <div class="container">
@@ -73,9 +73,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <div class="card">
 <h2>Key Metrics</h2>
 <div class="grid-3">
-<div class="kpi"><div class="num">10</div><div class="label">Models Compared</div></div>
-<div class="kpi"><div class="num">5</div><div class="label">Providers</div></div>
-<div class="kpi"><div class="num">4</div><div class="label">Benchmarks</div></div>
+<div class="kpi"><div class="num">10</div><div class="label">Models (LLM + Image)</div></div>
+<div class="kpi"><div class="num">8</div><div class="label">Use Cases</div></div>
+<div class="kpi"><div class="num">Interactive</div><div class="label">CLI Recommender</div></div>
 </div>
 </div>
 
@@ -86,33 +86,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 </div>
 
 <div class="card interactive-section">
-<h2>Interactive Chart <span class="badge-hdr">Try It</span></h2>
-<p style="margin-bottom:12px;color:#495057">Hover over data points for model details. Green bars = free/open source models. The cost vs performance scatter helps find the best value.</p>
-<div class="chart-frame"><iframe src="ai_model_comparison_interactive.html" loading="lazy" title="Interactive AI model comparison chart"></iframe></div>
-<p class="chart-caption"><a href="ai_model_comparison_interactive.html" target="_blank" style="color:#e94560;font-weight:500">Open interactive chart full screen</a></p>
+<h2>Interactive Recommender <span class="badge-hdr">CLI</span></h2>
+<div style="background:#f0f4ff;border-radius:10px;padding:20px;margin-bottom:16px">
+<p style="margin-bottom:12px;font-weight:600;color:#16213e">Run the interactive CLI:</p>
+<code style="display:block;background:#16213e;color:#a8c8f8;padding:14px;border-radius:8px;font-size:0.9em">python ai_model_comparison.py</code>
+<p style="margin-top:12px;color:#495057">Answer 3 questions: (1) What kind of task? (2) Budget? (3) Need open source? Get a ranked recommendation with platform info.</p>
 </div>
-
-<div class="card">
-<h2>Top Models</h2>
-<ul class="list-items">
-<li><strong>Best overall:</strong> Claude 3.5 Sonnet (90.8 composite score).</li>
-<li><strong>Best free:</strong> Mistral Large (83.3 composite, open source).</li>
-<li><strong>Best value:</strong> Llama 3 8B (highest score per dollar spent).</li>
-<li><strong>Longest context:</strong> Gemini 1.5 Pro (1M tokens).</li>
-<li><strong>Fastest:</strong> Llama 3 8B (140 tokens/second).</li>
-</ul>
-</div>
-
-<div class="card">
-<h2>Paid vs Free Alternatives</h2>
-<p style="margin-bottom:12px;color:#495057">Every paid model maps to a comparable free alternative:</p>
 <div class="grid-2">
-<div class="alt-card"><strong>GPT-4o</strong> &rarr; <strong>Llama 3 70B</strong><br>Save 97% | Score gap: -8.5</div>
-<div class="alt-card"><strong>GPT-4 Turbo</strong> &rarr; <strong>Llama 3 70B</strong><br>Save 94% | Score gap: -5.5</div>
-<div class="alt-card"><strong>Claude 3.5 Sonnet</strong> &rarr; <strong>Mistral Large</strong><br>Save 47% | Score gap: -7.5</div>
-<div class="alt-card"><strong>Claude 3 Opus</strong> &rarr; <strong>Llama 3 70B</strong><br>Save 96% | Score gap: -6.1</div>
-<div class="alt-card"><strong>Gemini 1.5 Pro</strong> &rarr; <strong>Mistral Large</strong><br>Save 33% | Score gap: -1.7</div>
-<div class="alt-card"><strong>Gemini 1.5 Flash</strong> &rarr; <strong>Llama 3 8B</strong><br>Save 83% | Score gap: -15.6</div>
+<div class="alt-card"><strong>Coding</strong> &rarr; Claude 3.5 Sonnet (paid) or Mistral Large (free)</div>
+<div class="alt-card"><strong>Image Generation</strong> &rarr; DALL-E 3 (paid) or Stable Diffusion 3.5 (free)</div>
+<div class="alt-card"><strong>Content Creation</strong> &rarr; GPT-4o (paid) or Llama 3 70B (free)</div>
+<div class="alt-card"><strong>Data Analysis</strong> &rarr; Claude 3.5 Sonnet (paid) or Mistral Large (free)</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Platforms</h2>
+<p style="margin-bottom:12px;color:#495057">Where to access each model:</p>
+<div class="grid-2">
+<div class="alt-card" style="border-left-color:#74aa9c"><strong>GPT-4o</strong><br>OpenAI API | ChatGPT (chatgpt.com)</div>
+<div class="alt-card" style="border-left-color:#d4a574"><strong>Claude 3.5 Sonnet</strong><br>Anthropic API | Claude (claude.ai)</div>
+<div class="alt-card" style="border-left-color:#2ecc71"><strong>Llama 3 70B (free)</strong><br>Groq | Replicate | Hugging Face Chat</div>
+<div class="alt-card" style="border-left-color:#2ecc71"><strong>Mistral Large (free)</strong><br>Mistral API | Le Chat (chat.mistral.ai)</div>
+<div class="alt-card" style="border-left-color:#9b59b6"><strong>Stable Diffusion 3.5 (free)</strong><br>Hugging Face | Replicate | Self-host</div>
+<div class="alt-card" style="border-left-color:#e67e22"><strong>FLUX.1 (free)</strong><br>Replicate | Hugging Face Spaces</div>
 </div>
 </div>
 
@@ -137,6 +134,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <a class="btn btn-outline" href="docs/architecture.md">Architecture</a>
 <a class="btn btn-outline" href="docs/runbook.md">Runbook</a>
 <a class="btn btn-interactive" href="ai_model_comparison_interactive.html">Interactive Chart</a>
+</div>
+<div style="margin-top:16px;padding:16px;background:#fff8e1;border-radius:10px;border-left:4px solid #ffa000">
+<p style="font-size:0.88em;color:#495057"><strong>Tip:</strong> Run <code>python ai_model_comparison.py</code> for an interactive session that asks about your use case and recommends models with platforms.</p>
 </div>
 
 </div>

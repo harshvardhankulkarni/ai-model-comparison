@@ -1,267 +1,300 @@
 """
 AI Model Comparison - Demo Project
-Compares popular LLMs on benchmarks, cost, speed, and capabilities.
-Includes paid vs free alternatives for every use case.
-Data reflects publicly available benchmark scores as of 2024-2025.
+Interactive CLI: tells you what you want to do, recommends the best model
+with paid/free alternatives and platform info.
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 
 models = pd.DataFrame({
-    'model': [
-        'GPT-4o', 'GPT-4 Turbo', 'Claude 3.5 Sonnet', 'Claude 3 Opus',
-        'Gemini 1.5 Pro', 'Gemini 1.5 Flash', 'Llama 3 70B', 'Llama 3 8B',
-        'Mistral Large', 'Mixtral 8x7B'
-    ],
-    'provider': ['OpenAI', 'OpenAI', 'Anthropic', 'Anthropic',
-                  'Google', 'Google', 'Meta', 'Meta',
-                  'Mistral', 'Mistral'],
-    'release_date': ['2024-05', '2023-11', '2024-06', '2024-03',
-                     '2024-02', '2024-02', '2024-04', '2024-04',
-                     '2024-02', '2023-12'],
-    'mmlu': [88.7, 86.5, 89.0, 86.8, 85.9, 79.0, 82.0, 66.0, 84.0, 68.0],
-    'human_eval': [90.2, 87.0, 92.0, 84.1, 84.0, 74.0, 80.0, 56.0, 82.0, 54.0],
-    'gsm8k': [95.8, 92.0, 96.0, 95.0, 91.0, 86.0, 87.0, 72.0, 90.0, 70.0],
-    'truthful_qa': [82.5, 80.0, 85.0, 83.0, 78.0, 72.0, 75.0, 55.0, 76.0, 60.0],
-    'context_window': [128000, 128000, 200000, 200000, 1000000, 1000000, 8192, 8192, 32000, 32000],
-    'cost_input_1k': [0.0050, 0.0100, 0.0030, 0.0150, 0.0035, 0.00035, 0.00065, 0.00006, 0.0020, 0.0002],
-    'cost_output_1k': [0.0150, 0.0300, 0.0150, 0.0750, 0.0105, 0.00105, 0.00087, 0.00008, 0.0060, 0.0006],
-    'speed_tokens_per_sec': [85, 60, 75, 40, 50, 120, 90, 140, 80, 110],
-    'open_source': [False, False, False, False, False, False, True, True, True, True],
+    'model': ['GPT-4o', 'Claude 3.5 Sonnet', 'Gemini 1.5 Pro', 'Llama 3 70B',
+              'Mistral Large', 'DALL-E 3', 'Stable Diffusion 3.5', 'Midjourney',
+              'FLUX.1', 'Claude 3 Haiku'],
+    'type': ['LLM', 'LLM', 'LLM', 'LLM', 'LLM', 'Image', 'Image', 'Image', 'Image', 'LLM'],
+    'open_source': [False, False, False, True, True, False, True, False, True, False],
+    'coding': [90, 92, 84, 80, 82, 0, 0, 0, 0, 75],
+    'content': [88, 85, 82, 76, 78, 92, 82, 95, 88, 70],
+    'reasoning': [89, 91, 86, 83, 84, 0, 0, 0, 0, 78],
+    'analysis': [87, 90, 88, 81, 83, 0, 0, 0, 0, 76],
+    'multilingual': [85, 82, 91, 78, 80, 0, 0, 0, 0, 72],
+    'image_gen': [0, 0, 0, 0, 0, 95, 85, 90, 88, 0],
+    'cost_monthly': [200, 150, 120, 30, 80, 50, 0, 60, 0, 30],
+    'speed': [85, 75, 50, 90, 80, 30, 60, 20, 55, 120],
 })
 
-# Free alternative mapping for each paid model
-free_alternatives = {
+platforms = {
     'GPT-4o': {
-        'alternative': 'Llama 3 70B',
-        'savings_pct': 97,
-        'trade_off': 'Lower creative writing quality. Smaller context window (8K vs 128K).',
-        'best_for': 'General Q&A, coding, data analysis where budget matters.'
-    },
-    'GPT-4 Turbo': {
-        'alternative': 'Llama 3 70B',
-        'savings_pct': 94,
-        'trade_off': 'Slightly lower accuracy on complex reasoning. No vision support.',
-        'best_for': 'Batch processing, internal tools, prototyping.'
+        'api': 'OpenAI API (platform.openai.com)',
+        'web': 'ChatGPT (chatgpt.com)',
+        'free_tier': False,
+        'self_host': False,
     },
     'Claude 3.5 Sonnet': {
-        'alternative': 'Mistral Large',
-        'savings_pct': 47,
-        'trade_off': 'Lower coding accuracy (92 vs 82 HumanEval). Smaller context window.',
-        'best_for': 'Document analysis, multilingual tasks, self-hosted apps.'
-    },
-    'Claude 3 Opus': {
-        'alternative': 'Llama 3 70B',
-        'savings_pct': 96,
-        'trade_off': 'Lower benchmark scores across the board. No vision.',
-        'best_for': 'High volume text generation, data extraction.'
+        'api': 'Anthropic API (console.anthropic.com)',
+        'web': 'Claude (claude.ai)',
+        'free_tier': False,
+        'self_host': False,
     },
     'Gemini 1.5 Pro': {
-        'alternative': 'Mistral Large',
-        'savings_pct': 33,
-        'trade_off': 'Loses 1M token context window (drops to 32K). Lower multilingual scores.',
-        'best_for': 'Standard document processing, RAG pipelines.'
+        'api': 'Google AI Studio (makersuite.google.com)',
+        'web': 'Gemini (gemini.google.com)',
+        'free_tier': True,
+        'self_host': False,
     },
-    'Gemini 1.5 Flash': {
-        'alternative': 'Llama 3 8B',
-        'savings_pct': 83,
-        'trade_off': 'Lower accuracy on math and coding. Smaller context.',
-        'best_for': 'Simple chatbots, content classification, high speed needs.'
+    'Llama 3 70B': {
+        'api': 'Groq (groq.com), Replicate (replicate.com)',
+        'web': 'Hugging Face Chat (huggingface.co/chat)',
+        'free_tier': True,
+        'self_host': True,
+    },
+    'Mistral Large': {
+        'api': 'Mistral API (console.mistral.ai)',
+        'web': 'Le Chat (chat.mistral.ai)',
+        'free_tier': True,
+        'self_host': True,
+    },
+    'DALL-E 3': {
+        'api': 'OpenAI API (platform.openai.com)',
+        'web': 'ChatGPT (chatgpt.com)',
+        'free_tier': False,
+        'self_host': False,
+    },
+    'Stable Diffusion 3.5': {
+        'api': 'Hugging Face Inference, Replicate',
+        'web': 'Hugging Face Spaces, Stability AI web',
+        'free_tier': True,
+        'self_host': True,
+    },
+    'Midjourney': {
+        'api': 'Midjourney API (midjourney.com/api)',
+        'web': 'Discord (discord.gg/midjourney)',
+        'free_tier': False,
+        'self_host': False,
+    },
+    'FLUX.1': {
+        'api': 'Replicate, Hugging Face Inference',
+        'web': 'Hugging Face Spaces',
+        'free_tier': True,
+        'self_host': True,
+    },
+    'Claude 3 Haiku': {
+        'api': 'Anthropic API (console.anthropic.com)',
+        'web': 'Claude (claude.ai)',
+        'free_tier': False,
+        'self_host': False,
     },
 }
 
-def find_free_alternative(model_name, is_open_source):
-    if is_open_source:
+free_alternatives = {
+    'GPT-4o': {'alt': 'Llama 3 70B', 'savings': 97, 'gap': -8.5},
+    'Claude 3.5 Sonnet': {'alt': 'Mistral Large', 'savings': 47, 'gap': -7.5},
+    'Gemini 1.5 Pro': {'alt': 'Mistral Large', 'savings': 33, 'gap': -1.7},
+    'DALL-E 3': {'alt': 'Stable Diffusion 3.5', 'savings': 100, 'gap': -10},
+    'Midjourney': {'alt': 'FLUX.1', 'savings': 100, 'gap': -2},
+}
+
+use_cases = {
+    '1': {'label': 'Code generation / software development', 'key': 'coding'},
+    '2': {'label': 'Content creation / copywriting', 'key': 'content'},
+    '3': {'label': 'Image generation', 'key': 'image_gen'},
+    '4': {'label': 'Data analysis & reporting', 'key': 'analysis'},
+    '5': {'label': 'Document analysis & summarization', 'key': 'analysis'},
+    '6': {'label': 'Math & reasoning tasks', 'key': 'reasoning'},
+    '7': {'label': 'Translation & multilingual', 'key': 'multilingual'},
+    '8': {'label': 'General Q&A / chatbot', 'key': 'coding'},
+}
+
+budget_opts = {
+    '1': {'label': 'Free / open source only (save money)', 'max_cost': 1},
+    '2': {'label': 'Balanced (good quality at fair price)', 'max_cost': 100},
+    '3': {'label': 'Premium (best quality, cost unlimited)', 'max_cost': 99999},
+}
+
+
+def recommend(use_case_key, budget_max, need_open_source):
+    filtered = models.copy()
+    if need_open_source:
+        filtered = filtered[filtered['open_source'] == True]
+    filtered = filtered[filtered['cost_monthly'] <= budget_max]
+    if len(filtered) == 0:
+        msg = 'open source' if need_open_source else 'budget'
+        print(f'  No models match your {msg} criteria.')
         return None
-    return free_alternatives.get(model_name, None)
+    primary_score = filtered[use_case_key]
+    filtered['score'] = primary_score + filtered['reasoning'] * 0.3 + filtered['speed'] / 200
+    filtered = filtered.sort_values('score', ascending=False)
+    return filtered
 
-models['free_alternative'] = models.apply(
-    lambda row: find_free_alternative(row['model'], row['open_source']), axis=1
-)
 
-# Calculate composite score
-weights = {'mmlu': 0.25, 'human_eval': 0.30, 'gsm8k': 0.25, 'truthful_qa': 0.20}
-models['benchmark_score'] = (
-    models['mmlu'] * weights['mmlu'] +
-    models['human_eval'] * weights['human_eval'] +
-    models['gsm8k'] * weights['gsm8k'] +
-    models['truthful_qa'] * weights['truthful_qa']
-).round(1)
+def print_platform(model_name):
+    p = platforms.get(model_name)
+    if not p:
+        return
+    print(f'    API: {p["api"]}')
+    print(f'    Web: {p["web"]}')
+    if p['free_tier']:
+        print('    Free tier: Yes')
+    if p['self_host']:
+        print('    Self-hostable: Yes')
 
-# Tier assignment
-def assign_tier(score):
-    if score >= 88:
-        return 'Tier 1: Best in Class'
-    elif score >= 80:
-        return 'Tier 2: Strong Performer'
-    elif score >= 70:
-        return 'Tier 3: Solid Choice'
-    else:
-        return 'Tier 4: Entry Level'
 
-models['tier'] = models['benchmark_score'].apply(assign_tier)
+def interactive():
+    print('\n' + '=' * 60)
+    print('  AI MODEL RECOMMENDER')
+    print('  Tell me what you need -- I will recommend the best model.')
+    print('=' * 60)
+    print()
+    for k, v in use_cases.items():
+        print(f'  [{k}] {v["label"]}')
 
-# Use case recommendations
-def recommend_use_case(row):
-    reasons = []
-    if row['context_window'] >= 100000:
-        reasons.append('Long document analysis')
-    if row['human_eval'] >= 85:
-        reasons.append('Complex coding tasks')
-    if row['cost_input_1k'] <= 0.001:
-        reasons.append('High volume, cost sensitive')
-    if row['open_source']:
-        reasons.append('Self hosted, data privacy')
-    if row['benchmark_score'] >= 88:
-        reasons.append('General purpose, maximum accuracy')
-    return ' | '.join(reasons)
+    while True:
+        choice = input('\nWhat do you want to do? (1-8): ').strip()
+        if choice in use_cases:
+            break
+        print('  Invalid. Pick 1-8.')
 
-models['recommended_for'] = models.apply(recommend_use_case, axis=1)
+    use_case = use_cases[choice]
+    print(f'\nYou selected: {use_case["label"]}')
+    print()
 
-# Paid vs free comparison table
-paid_free_rows = []
-for _, row in models.iterrows():
-    alt = row['free_alternative']
-    if alt:
-        alt_row = models[models['model'] == alt['alternative']]
-        if len(alt_row) > 0:
-            alt_model = alt_row.iloc[0]
-            paid_free_rows.append({
-                'paid_model': row['model'],
-                'paid_score': row['benchmark_score'],
-                'paid_cost': row['cost_input_1k'],
-                'free_model': alt['alternative'],
-                'free_score': alt_model['benchmark_score'],
-                'free_cost': alt_model['cost_input_1k'],
-                'savings_pct': alt['savings_pct'],
-                'score_gap': round(row['benchmark_score'] - alt_model['benchmark_score'], 1),
-                'trade_off': alt['trade_off'],
-                'best_for': alt['best_for'],
-            })
+    for k, v in budget_opts.items():
+        print(f'  [{k}] {v["label"]}')
+    while True:
+        bc = input('\nBudget preference? (1-3): ').strip()
+        if bc in budget_opts:
+            break
+        print('  Invalid. Pick 1-3.')
 
-paid_free_df = pd.DataFrame(paid_free_rows)
+    budget = budget_opts[bc]
+    print()
 
-# Visualization
-fig, axes = plt.subplots(2, 2, figsize=(15, 11))
-colors = {'OpenAI': '#74aa9c', 'Anthropic': '#d4a574', 'Google': '#8ab4f8',
-          'Meta': '#8a9eb0', 'Mistral': '#c9957a'}
-model_colors = [colors[p] for p in models['provider']]
+    need_os = input('Need open source / self-hostable? (y/n): ').strip().lower() == 'y'
 
-# Plot 1: Benchmark scores grouped by provider
-x = np.arange(len(models))
-width = 0.2
-metrics = ['mmlu', 'human_eval', 'gsm8k', 'truthful_qa']
-for i, metric in enumerate(metrics):
-    offsets = (i - 1.5) * width
-    axes[0, 0].bar(x + offsets, models[metric], width, label=metric.replace('_', ' ').title())
-axes[0, 0].set_xticks(x)
-axes[0, 0].set_xticklabels(models['model'], rotation=45, ha='right', fontsize=8)
-axes[0, 0].set_ylabel('Score (%)')
-axes[0, 0].set_title('Benchmark Scores by Model')
-axes[0, 0].legend(fontsize=8)
-axes[0, 0].set_ylim(40, 100)
-axes[0, 0].grid(True, alpha=0.3)
+    result = recommend(use_case['key'], budget['max_cost'], need_os)
+    if result is None:
+        return
 
-# Plot 2: Composite score with paid/free markers
-bars = axes[0, 1].barh(models['model'], models['benchmark_score'], color=model_colors)
-axes[0, 1].set_xlabel('Composite Benchmark Score')
-axes[0, 1].set_title('Overall Model Performance (green = free / open source)')
-for bar, val, is_free in zip(bars, models['benchmark_score'], models['open_source']):
-    label_color = '#2ecc71' if is_free else '#e74c3c'
-    axes[0, 1].text(val + 0.5, bar.get_y() + bar.get_height()/2,
-        f'{val}', va='center', fontsize=8, color=label_color, fontweight='bold')
+    print('\n' + '-' * 60)
+    print('  TOP RECOMMENDATIONS')
+    print('-' * 60)
+    for i, (_, row) in enumerate(result.head(3).iterrows()):
+        tag = 'OPEN SOURCE' if row['open_source'] else 'PAID'
+        print(f'\n  #{i+1}: {row["model"]} ({row["type"]}) [{tag}]')
+        print(f'    Score: {row["score"]:.1f} | Cost: ${row["cost_monthly"]}/mo')
+        print_platform(row['model'])
 
-# Plot 3: Cost vs Performance with free alternatives highlighted
-for provider in models['provider'].unique():
-    subset = models[models['provider'] == provider]
-    axes[1, 0].scatter(subset['cost_input_1k'] * 1000, subset['benchmark_score'],
-        label=provider, s=100, alpha=0.7, color=colors[provider])
-    for _, row in subset.iterrows():
-        axes[1, 0].annotate(row['model'].split()[0],
-            (row['cost_input_1k'] * 1000, row['benchmark_score']),
-            fontsize=7, ha='center', va='bottom')
+        alt = free_alternatives.get(row['model'])
+        if alt:
+            alt_data = models[models['model'] == alt['alt']].iloc[0]
+            print(f'    >> Free alternative: {alt["alt"]} (save {alt["savings"]}%, gap: {alt["gap"]:+.1f})')
+            print_platform(alt['alt'])
 
-# Highlight free alternatives on the scatter plot
-free_models = models[models['open_source'] == True]
-axes[1, 0].scatter(free_models['cost_input_1k'] * 1000, free_models['benchmark_score'],
-    s=200, facecolors='none', edgecolors='#2ecc71', linewidths=2, label='Free / Open Source')
-axes[1, 0].set_xlabel('Cost per 1K input tokens (cents)')
-axes[1, 0].set_ylabel('Benchmark Score')
-axes[1, 0].set_title('Cost vs Performance (circled = free alternatives)')
-axes[1, 0].legend(fontsize=7)
-axes[1, 0].grid(True, alpha=0.3)
+    print('\n  ALL MODELS RANKED:')
+    for _, row in result.iterrows():
+        tag = 'FREE' if row['open_source'] else 'PAID'
+        print(f'    {row["model"]:25s} score: {row["score"]:.1f}  ${row["cost_monthly"]:>3}/mo  [{tag}]')
+    print()
 
-# Plot 4: Paid vs Free score comparison
-if len(paid_free_df) > 0:
-    x_pf = np.arange(len(paid_free_df))
-    width_pf = 0.35
-    axes[1, 1].bar(x_pf - width_pf/2, paid_free_df['paid_score'], width_pf,
-        label='Paid', color='#e74c3c', alpha=0.8)
-    axes[1, 1].bar(x_pf + width_pf/2, paid_free_df['free_score'], width_pf,
-        label='Free Alt', color='#2ecc71', alpha=0.8)
-    axes[1, 1].set_xticks(x_pf)
-    axes[1, 1].set_xticklabels(paid_free_df['paid_model'], rotation=45, ha='right', fontsize=8)
-    axes[1, 1].set_ylabel('Composite Score')
-    axes[1, 1].set_title('Paid Model vs Free Alternative (score comparison)')
-    axes[1, 1].legend(fontsize=8)
-    axes[1, 1].grid(True, alpha=0.3)
-    for i in range(len(paid_free_df)):
-        gap = paid_free_df.iloc[i]['score_gap']
-        axes[1, 1].text(i, max(paid_free_df.iloc[i]['paid_score'], paid_free_df.iloc[i]['free_score']) + 1,
-            f'gap: {gap:.1f}', ha='center', fontsize=7, fontweight='bold')
-else:
-    axes[1, 1].text(0.5, 0.5, 'No paid vs free comparison available',
-        ha='center', va='center', transform=axes[1, 1].transAxes)
-    axes[1, 1].set_title('Paid vs Free Alternative')
+    # Also run the static analysis
+    run_static_analysis()
 
-plt.tight_layout()
-plt.savefig('ai_model_comparison.png', dpi=150, bbox_inches='tight')
-print('Saved: ai_model_comparison.png')
 
-# Console output
-print('\n--- AI MODEL COMPARISON (PAID VS FREE) ---')
-print(f'Models analyzed: {len(models)}')
-print(f'\nPerformance Tiers:')
-for tier in ['Tier 1: Best in Class', 'Tier 2: Strong Performer', 'Tier 3: Solid Choice', 'Tier 4: Entry Level']:
-    tier_models = models[models['tier'] == tier]
-    if len(tier_models) > 0:
-        names = ', '.join(tier_models['model'].tolist())
-        print(f'  {tier}: {names}')
+def run_static_analysis():
+    print('\n' + '=' * 60)
+    print('  STATIC BENCHMARK COMPARISON')
+    print('=' * 60)
+    llm_only = models[models['type'] == 'LLM'].copy()
+    llm_only['benchmark'] = (
+        llm_only['coding'] * 0.25 + llm_only['reasoning'] * 0.30 +
+        llm_only['content'] * 0.25 + llm_only['multilingual'] * 0.20
+    ).round(1)
+    best = llm_only.loc[llm_only['benchmark'].idxmax()]
+    print(f'  Best overall LLM: {best["model"]} ({best["benchmark"]})')
+    open_llm = llm_only[llm_only['open_source'] == True]
+    if len(open_llm) > 0:
+        best_open = open_llm.loc[open_llm['benchmark'].idxmax()]
+        print(f'  Best free LLM: {best_open["model"]} ({best_open["benchmark"]})')
 
-print(f'\nBest overall (composite): {models.loc[models["benchmark_score"].idxmax(), "model"]} ({models["benchmark_score"].max()})')
-print(f'Best free alternative (composite): {free_models.loc[free_models["benchmark_score"].idxmax(), "model"]} ({free_models["benchmark_score"].max()})')
-print(f'Best value (score/cost): {models.loc[(models["benchmark_score"] / (models["cost_input_1k"] * 1000)).idxmax(), "model"]}')
-print(f'Longest context: {models.loc[models["context_window"].idxmax(), "model"]} ({models["context_window"].max():,} tokens)')
-print(f'Fastest: {models.loc[models["speed_tokens_per_sec"].idxmax(), "model"]} ({models["speed_tokens_per_sec"].max()} tok/s)')
+    print('\n  Performance Tiers:')
+    for tier_name, lo, hi in [('Best in Class', 85, 100), ('Strong Performer', 78, 85),
+                               ('Solid Choice', 70, 78), ('Entry Level', 0, 70)]:
+        names = llm_only[(llm_only['benchmark'] >= lo) & (llm_only['benchmark'] < hi)]['model'].tolist()
+        if names:
+            print(f'    {tier_name}: {", ".join(names)}')
+    print()
 
-print('\n--- PAID MODEL VS FREE ALTERNATIVE ---')
-for _, row in models.iterrows():
-    print(f'\n{row["model"]} ({row["provider"]})')
-    print(f'  Cost: ${row["cost_input_1k"]*1000:.2f}/1K inputs | Score: {row["benchmark_score"]} | Open source: {row["open_source"]}')
-    alt = row['free_alternative']
-    if alt:
-        alt_data = models[models['model'] == alt['alternative']].iloc[0]
-        print(f'  >> FREE ALTERNATIVE: {alt["alternative"]} (${alt_data["cost_input_1k"]*1000:.2f}/1K inputs, score: {alt_data["benchmark_score"]})')
-        print(f'     Save {alt["savings_pct"]}% on API costs.')
-        print(f'     Score gap: {alt_data["benchmark_score"] - row["benchmark_score"]:+.1f} points.')
-        print(f'     Trade-off: {alt["trade_off"]}')
-        print(f'     Best use case for free: {alt["best_for"]}')
-    else:
-        print(f'  >> Already free / open source.')
+    print('  PAID MODEL VS FREE ALTERNATIVE')
+    for _, row in models.iterrows():
+        alt = free_alternatives.get(row['model'])
+        if alt:
+            alt_data = models[models['model'] == alt['alt']].iloc[0]
+            print(f'  {row["model"]:20s} -> {alt["alt"]:20s} save {alt["savings"]:>2}%  gap {alt["gap"]:+.1f}')
 
-print('\n--- USE CASE RECOMMENDATIONS ---')
-for _, row in models.iterrows():
-    print(f'\n{row["model"]} ({row["provider"]}):')
-    print(f'  Tier: {row["tier"]}')
-    print(f'  Best for: {row["recommended_for"]}')
+    import matplotlib.pyplot as plt
+    fig, axes = plt.subplots(2, 2, figsize=(15, 11))
+    colors = {'OpenAI': '#74aa9c', 'Anthropic': '#d4a574', 'Google': '#8ab4f8',
+              'Meta': '#8a9eb0', 'Mistral': '#c9957a', 'Stability AI': '#9b59b6',
+              'Black Forest Labs': '#e67e22', 'Midjourney': '#1abc9c'}
+    providers_map = {'GPT-4o': 'OpenAI', 'Claude 3.5 Sonnet': 'Anthropic', 'Gemini 1.5 Pro': 'Google',
+                     'Llama 3 70B': 'Meta', 'Mistral Large': 'Mistral', 'DALL-E 3': 'OpenAI',
+                     'Stable Diffusion 3.5': 'Stability AI', 'Midjourney': 'Midjourney',
+                     'FLUX.1': 'Black Forest Labs', 'Claude 3 Haiku': 'Anthropic'}
 
-# Export
-models.to_csv('model_comparison_data.csv', index=False)
-if len(paid_free_df) > 0:
-    paid_free_df.to_csv('paid_vs_free_alternatives.csv', index=False)
-    print('\nExported: model_comparison_data.csv, paid_vs_free_alternatives.csv')
-else:
-    print('\nExported: model_comparison_data.csv')
-print('Done.')
+    x = np.arange(len(models))
+    width = 0.2
+    metrics = ['coding', 'content', 'reasoning', 'analysis']
+    for i, metric in enumerate(metrics):
+        axes[0, 0].bar(x + (i - 1.5) * width, models[metric], width,
+                       label=metric.replace('_', ' ').title())
+    axes[0, 0].set_xticks(x)
+    axes[0, 0].set_xticklabels(models['model'], rotation=45, ha='right', fontsize=8)
+    axes[0, 0].set_ylabel('Score')
+    axes[0, 0].set_title('Capability Scores by Model')
+    axes[0, 0].legend(fontsize=8)
+    axes[0, 0].set_ylim(0, 100)
+    axes[0, 0].grid(True, alpha=0.3)
+
+    model_colors = [colors.get(providers_map.get(m, '#95a5a6')) for m in models['model']]
+    base_scores = (models['coding'] * 0.2 + models['content'] * 0.2 +
+                   models['reasoning'] * 0.2 + models['analysis'] * 0.2 +
+                   models['multilingual'] * 0.1 + models['image_gen'] * 0.1).round(1)
+    bars = axes[0, 1].barh(models['model'], base_scores, color=model_colors)
+    axes[0, 1].set_xlabel('Composite Capability Score')
+    axes[0, 1].set_title('Overall Model Capability')
+    for bar, val in zip(bars, base_scores):
+        axes[0, 1].text(val + 0.5, bar.get_y() + bar.get_height()/2,
+                        f'{val}', va='center', fontsize=8, fontweight='bold')
+
+    for i in range(len(models)):
+        axes[1, 0].scatter(models['cost_monthly'].iloc[i], base_scores.iloc[i],
+                          s=100, alpha=0.7, color=model_colors[i])
+        axes[1, 0].annotate(models['model'].iloc[i].split()[0],
+                           (models['cost_monthly'].iloc[i], base_scores.iloc[i]),
+                           fontsize=7, ha='center', va='bottom')
+    free_m = models[models['open_source'] == True]
+    axes[1, 0].scatter(free_m['cost_monthly'], base_scores[free_m.index],
+                      s=200, facecolors='none', edgecolors='#2ecc71', linewidths=2,
+                      label='Free / Open Source')
+    axes[1, 0].set_xlabel('Cost ($/month)')
+    axes[1, 0].set_ylabel('Capability Score')
+    axes[1, 0].set_title('Cost vs Capability (circled = free)')
+    axes[1, 0].legend(fontsize=7)
+    axes[1, 0].grid(True, alpha=0.3)
+
+    axes[1, 1].text(0.5, 0.5,
+        'Interactive Recommender:\nRun "python ai_model_comparison.py"\nto get personalized suggestions.',
+        ha='center', va='center', transform=axes[1, 1].transAxes, fontsize=11)
+    axes[1, 1].set_title('Need a recommendation?')
+
+    plt.tight_layout()
+    plt.savefig('ai_model_comparison.png', dpi=150, bbox_inches='tight')
+    print('\nSaved: ai_model_comparison.png')
+
+    models.to_csv('model_comparison_data.csv', index=False)
+    print('Exported: model_comparison_data.csv')
+    print('Done.')
+
+
+if __name__ == '__main__':
+    interactive()
