@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>AI Model Comparison - Demo Project</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;color:#1a1a2e;line-height:1.6}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+h1{font-size:2em;margin-bottom:8px;color:#16213e}
+h2{color:#0f3460;margin:24px 0 12px}
+.demo-tag{color:#e94560;font-weight:600;font-size:0.9em}
+img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.1);margin:16px 0}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin:16px 0}
+.tag{display:inline-block;background:#e9ecef;color:#495057;padding:3px 10px;border-radius:20px;font-size:0.85em;margin:2px 4px 2px 0}
+.btn{display:inline-block;background:#0f3460;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:500;margin:8px 4px}
+.btn:hover{background:#16213e}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.alt{background:#e8f8f0;padding:12px;border-radius:8px;border-left:4px solid #2ecc71;margin:8px 0}
+.alt strong{color:#2ecc71}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>AI Model Comparison</h1>
+<p class="demo-tag">Demo Project</p>
+<p>Compares 10 LLMs across 4 benchmarks (MMLU, HumanEval, GSM8K, TruthfulQA), cost, speed, and context window. Includes paid vs free alternatives.</p>
+
+<div class="card">
+<h2>Output Chart</h2>
+<img src="ai_model_comparison.png" alt="AI Model Comparison Chart">
+</div>
+
+<div class="card">
+<h2>Top Models</h2>
+<ul>
+<li><strong>Best overall:</strong> Claude 3.5 Sonnet (90.8 composite)</li>
+<li><strong>Best free:</strong> Mistral Large (83.3 composite, open source)</li>
+<li><strong>Best value:</strong> Llama 3 8B (high score per dollar)</li>
+<li><strong>Longest context:</strong> Gemini 1.5 Pro (1M tokens)</li>
+<li><strong>Fastest:</strong> Llama 3 8B (140 tok/s)</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Paid vs Free Alternatives</h2>
+<div class="alt"><strong>GPT-4o</strong> rarr; <strong>Llama 3 70B</strong> (save 97%, gap -8.5)</div>
+<div class="alt"><strong>Claude 3.5 Sonnet</strong> rarr; <strong>Mistral Large</strong> (save 47%, gap -7.5)</div>
+<div class="alt"><strong>Gemini 1.5 Pro</strong> rarr; <strong>Mistral Large</strong> (save 33%, gap -1.7)</div>
+<div class="alt"><strong>Gemini 1.5 Flash</strong> rarr; <strong>Llama 3 8B</strong> (save 83%, gap -15.6)</div>
+</div>
+
+<a class="btn" href="https://github.com/harshvardhankulkarni/ai-model-comparison" target="_blank">View Source</a>
+<a class="btn" href="ai_model_comparison.py" target="_blank">Download Script</a>
+<a class="btn" href="docs/architecture.md" target="_blank">Architecture</a>
+<a class="btn" href="docs/runbook.md" target="_blank">Runbook</a>
+</div>
+</body>
+</html>
